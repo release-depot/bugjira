@@ -1,0 +1,10 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+bugjira = {path = ".",editable = true}
+
+[dev-packages]
+bugjira = {path = ".",extras = ["devbase","test","docs","dist"],editable = true}
