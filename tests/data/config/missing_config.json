@@ -1,0 +1,7 @@
+{"bugzilla": {
+    "URL": "",
+    "api_key": ""},
+ "jira": {
+    "URL": "",
+    "token_auth": ""}
+ }
