@@ -1,0 +1,7 @@
+{"bugzilla": {
+    "URL": "https://bugzilla.yourdomain.com",
+    "api_key": "your_bugzilla_api_key"},
+ "jira": {
+    "URL": "https://jira.yourdomain.com",
+    "token_auth": "your_jira_personal_access_token"}
+ }

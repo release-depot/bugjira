@@ -1,0 +1,10 @@
+{
+    "bugzilla": {
+        "server": "https://bugzilla.redhat.com",
+        "api_key": "your_api_key_here"
+    },
+    "jira": {
+        "server": "https://issues.redhat.com",
+        "token_auth": "your_personal_auth_token_here"
+    }
+}
