@@ -29,7 +29,7 @@ def is_jira_key(key):
     """
     if not isinstance(key, str):
         raise ValueError(f"Key must be a str: {key}")
-    jira = re.compile("[a-zA-Z]+-[0-9]+")
+    jira = re.compile("[a-zA-Z]+[-_][0-9]+")
     if jira.match(key):
         return True
     return False
