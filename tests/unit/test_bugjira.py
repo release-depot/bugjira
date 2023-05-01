@@ -8,9 +8,11 @@ from jira import JIRA
 from jira.exceptions import JIRAError
 
 import bugjira.broker as broker
-from bugjira.broker import BrokerLookupException
+from bugjira.exceptions import (
+    BrokerLookupException, BrokerAddCommentException
+)
 from bugjira.bugjira import Bugjira
-from bugjira.issue import BugzillaIssue, JiraIssue
+from bugjira.issue import Issue, BugzillaIssue, JiraIssue
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -178,6 +180,91 @@ def test_get_issue_with_non_string_key(sandboxed_bugjira):
     """
     with pytest.raises(ValueError):
         sandboxed_bugjira.get_issue(1)
+
+
+def test_add_comment_non_issue(sandboxed_bugjira):
+    """
+    GIVEN a Bugjira instance
+    WHEN we call add_comment with a None value for the 'issue' parameter
+    THEN a ValueError should be raised
+    """
+    with pytest.raises(ValueError,
+                       match="issue must be an Issue"):
+        sandboxed_bugjira.add_comment(None, "")
+
+
+def test_add_comment_non_string_comment(sandboxed_bugjira):
+    """
+    GIVEN a Bugjira instance
+    WHEN we call add_comment with a None value for the 'comment' parameter
+    THEN a ValueError should be raised
+    """
+    with pytest.raises(ValueError,
+                       match="comment must be a str"):
+        sandboxed_bugjira.add_comment(Issue(key="foo"),
+                                      None)
+
+
+def test_add_comment_good_bugzilla(sandboxed_bugjira):
+    """
+    GIVEN a Bugjira instance
+    WHEN we call add_comment with a BugzillaIssue and comment string
+    THEN the bugzilla backend's build_update and update_bugs methods should
+        each be invoked once
+    """
+    comment_text = "This is a sample comment"
+    key = "123456"
+    issue = BugzillaIssue(key=key)
+    sandboxed_bugjira.add_comment(issue, comment_text)
+    assert sandboxed_bugjira.bugzilla.build_update.call_count == 1
+    assert sandboxed_bugjira.bugzilla.update_bugs.call_count == 1
+
+
+def test_add_comment_bugzilla_exception(sandboxed_bugjira):
+    """
+    GIVEN a Bugjira instance whose bugzilla backend's update_bugs method
+        raises an Exception
+    WHEN we call add_comment
+    THEN a BrokerAddCommentException should be raised
+    """
+    msg = "Exception raised"
+    sandboxed_bugjira.bugzilla.update_bugs.side_effect = Exception(msg)
+    comment_text = "This is a sample comment"
+    key = "123456"
+    issue = BugzillaIssue(key=key)
+    with pytest.raises(BrokerAddCommentException,
+                       match=msg):
+        sandboxed_bugjira.add_comment(issue, comment_text)
+
+
+def test_add_comment_good_jira(sandboxed_bugjira):
+    """
+    GIVEN a Bugjira instance
+    WHEN we call add_comment with a JiraIssue and comment string
+    THEN the jira backend's add_comment method should be invoked once
+    """
+    comment_text = "This is a sample comment"
+    key = "FOO-123"
+    issue = JiraIssue(key=key)
+    sandboxed_bugjira.add_comment(issue, comment_text)
+    assert sandboxed_bugjira.jira.add_comment.call_count == 1
+
+
+def test_add_comment_jira_exception(sandboxed_bugjira):
+    """
+    GIVEN a Bugjira instance whose jira backend's add_comment method
+        raises an Exception
+    WHEN we call add_comment
+    THEN a BrokerAddCommentException should be raised
+    """
+    msg = "Exception raised"
+    sandboxed_bugjira.jira.add_comment.side_effect = Exception(msg)
+    comment_text = "This is a sample comment"
+    key = "FOO-123"
+    issue = JiraIssue(key=key)
+    with pytest.raises(BrokerAddCommentException,
+                       match=msg):
+        sandboxed_bugjira.add_comment(issue, comment_text)
 
 
 def test_get_issue_good_bugzilla(sandboxed_bugjira):

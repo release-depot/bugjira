@@ -41,6 +41,21 @@ class Bugjira:
         self._jira_broker = JiraBroker(config=self.config, backend=jira)
         self.jira = self._jira_broker.backend
 
+    def add_comment(self, issue, comment) -> None:
+        """Add a comment to an existing Issue
+
+        :param issue: the Issue that the comment will be added to
+        :type issue: bugjira.issue.Issue
+        :param comment: the text of the comment
+        :type comment: str
+        """
+        if not isinstance(issue, Issue):
+            raise ValueError(f"issue must be an Issue: {str(issue)}")
+        if not isinstance(comment, str):
+            raise ValueError(f"comment must be a str: {str(comment)}")
+        broker = self._get_broker(issue.key)
+        broker.add_comment(issue, comment)
+
     def get_issue(self, key) -> Issue:
         """Return an Issue using the correct Broker based on the key input
 

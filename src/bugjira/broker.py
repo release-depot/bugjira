@@ -2,6 +2,11 @@ from bugzilla import Bugzilla
 from jira import JIRA
 
 from bugjira.config import Config
+from bugjira.exceptions import (
+    BrokerInitException,
+    BrokerLookupException,
+    BrokerAddCommentException
+)
 from bugjira.issue import BugzillaIssue, Issue, JiraIssue
 
 
@@ -19,6 +24,10 @@ class Broker:
         if config is None and backend is None:
             raise BrokerInitException("API backend or config dict required")
         self.backend = backend
+
+    def add_comment(self, issue, comment) -> None:
+        # Override in subclasses
+        pass
 
     def get_issue(self, key) -> Issue:
         # Override in subclasses
@@ -44,6 +53,22 @@ class BugzillaBroker(Broker):
             url = config.get("bugzilla").get("URL")
             api_key = config.get("bugzilla").get("api_key")
             self.backend = Bugzilla(url, api_key=api_key)
+
+    def add_comment(self, issue, comment) -> None:
+        """Adds a comment to an existing Issue
+
+        :param issue: The issue that the comment will be added to
+        :type issue: bugjira.issue.Issue
+        :param comment: The text of the comment to be added
+        :type comment: str
+        :raises BrokerAddCommentException: Raised if the backend raises an
+            Exception when attempting to add the comment
+        """
+        try:
+            update = self.backend.build_update(comment=comment)
+            self.backend.update_bugs([issue.key], update)
+        except Exception as e:
+            raise BrokerAddCommentException(e)
 
     def get_issue(self, key) -> BugzillaIssue:
         """Return an Issue that wraps a bugzilla bug returned by the backend
@@ -82,6 +107,21 @@ class JiraBroker(Broker):
             token_auth = config.get("jira").get("token_auth")
             self.backend = JIRA(url, token_auth=token_auth)
 
+    def add_comment(self, issue, comment) -> None:
+        """Adds a comment to an existing Issue
+
+        :param issue: The issue that the comment will be added to
+        :type issue: bugjira.issue.Issue
+        :param comment: The text of the comment to be added
+        :type comment: str
+        :raises BrokerAddCommentException: Raised if the backend raises an
+            Exception when attempting to add the comment
+        """
+        try:
+            self.backend.add_comment(issue.key, comment)
+        except Exception as e:
+            raise BrokerAddCommentException(e)
+
     def get_issue(self, key) -> JiraIssue:
         """Return an Issue that wraps a JIRA issue returned by the backend
 
@@ -97,15 +137,3 @@ class JiraBroker(Broker):
         except Exception as e:
             raise BrokerLookupException(e)
         return JiraIssue(key=key, jira_issue=issue)
-
-
-class BrokerException(Exception):
-    pass
-
-
-class BrokerInitException(BrokerException):
-    pass
-
-
-class BrokerLookupException(BrokerException):
-    pass
