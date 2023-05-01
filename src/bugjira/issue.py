@@ -1,6 +1,8 @@
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
+
+from bugjira.util import is_bugzilla_key, is_jira_key
 
 
 class Issue(BaseModel):
@@ -15,8 +17,14 @@ class Issue(BaseModel):
 
 
 class BugzillaIssue(Issue):
-    pass
+    @validator("key")
+    def validate_key(cls, key):
+        assert is_bugzilla_key(key)
+        return key
 
 
 class JiraIssue(Issue):
-    pass
+    @validator("key")
+    def validate_key(cls, key):
+        assert is_jira_key(key)
+        return key
