@@ -19,12 +19,16 @@ class Issue(BaseModel):
 class BugzillaIssue(Issue):
     @validator("key")
     def validate_key(cls, key):
-        assert is_bugzilla_key(key)
+        if not is_bugzilla_key(key):
+            raise ValueError(f"{key} is not a \
+                valid bugzilla key")
         return key
 
 
 class JiraIssue(Issue):
     @validator("key")
     def validate_key(cls, key):
-        assert is_jira_key(key)
+        if not is_jira_key(key):
+            raise ValueError(f"{key} is not a \
+                valid JIRA key")
         return key
