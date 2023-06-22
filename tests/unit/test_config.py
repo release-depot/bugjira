@@ -28,16 +28,112 @@ def test_config_good_dict(good_config_dict):
     assert Config.from_config(config_dict=good_config_dict) == good_config_dict
 
 
-def test_config_missing_values(config_defaults):
+def test_config_extra_top_level_value(good_config_dict):
     """
-    GIVEN a json file containing an incomplete definition of a Bugjira config
+    GIVEN a dict containing a Bugjira config with an extra top-level setting
+    WHEN we call Config.from_config using the dict as the config_dict
+    THEN a ValidationError is raised with the appropriate error message
+    """
+    bad_config = deepcopy(good_config_dict)
+    bad_config["foo"] = "bar"
+
+    with pytest.raises(ValidationError) as excinfo:
+        Config.from_config(config_dict=bad_config)
+
+    assert len(excinfo.value.errors()) == 1
+    error = excinfo.value.errors()[0]
+    assert error.get("loc") == ("config_dict", "foo")
+    assert error.get("msg") == "extra fields not permitted"
+    assert error.get("type") == "value_error.extra"
+
+
+def test_config_extra_bugzilla_value(good_config_dict):
+    """
+    GIVEN a dict containing a Bugjira config with an extra bugzilla setting
+    WHEN we call Config.from_config using the dict as the config_dict
+    THEN a ValidationError is raised with the appropriate error message
+    """
+    bad_config = deepcopy(good_config_dict)
+    bad_config["bugzilla"]["foo"] = "bar"
+
+    with pytest.raises(ValidationError) as excinfo:
+        Config.from_config(config_dict=bad_config)
+
+    assert len(excinfo.value.errors()) == 1
+    error = excinfo.value.errors()[0]
+    assert error.get("loc") == ("config_dict", "bugzilla", "foo")
+    assert error.get("msg") == "extra fields not permitted"
+    assert error.get("type") == "value_error.extra"
+
+
+def test_config_extra_jira_value(good_config_dict):
+    """
+    GIVEN a dict containing a Bugjira config with an extra jira setting
+    WHEN we call Config.from_config using the dict as the config_dict
+    THEN a ValidationError is raised with the appropriate error message
+    """
+    bad_config = deepcopy(good_config_dict)
+    bad_config["jira"]["foo"] = "bar"
+
+    with pytest.raises(ValidationError) as excinfo:
+        Config.from_config(config_dict=bad_config)
+
+    assert len(excinfo.value.errors()) == 1
+    error = excinfo.value.errors()[0]
+    assert error.get("loc") == ("config_dict", "jira", "foo")
+    assert error.get("msg") == "extra fields not permitted"
+    assert error.get("type") == "value_error.extra"
+
+
+def test_config_missing_value(good_config_dict):
+    """
+    GIVEN a dict containing a Bugjira config with one missing key
+    WHEN we call Config.from_config using the dict as the config_dict
+    THEN a ValidationError is raised with the appropriate error message
+    """
+    bad_config = deepcopy(good_config_dict)
+    bad_config["jira"].pop("token_auth")
+    with pytest.raises(ValidationError) as excinfo:
+        Config.from_config(config_dict=bad_config)
+
+    assert len(excinfo.value.errors()) == 1
+    error = excinfo.value.errors()[0]
+    assert error.get("loc") == ("config_dict", "jira", "token_auth")
+    assert error.get("msg") == "field required"
+    assert error.get("type") == "value_error.missing"
+
+
+def test_config_empty_value(good_config_dict):
+    """
+    GIVEN a dict containing a Bugjira config with one empty string value
+    WHEN we call Config.from_config using the dict as the config_dict
+    THEN a ValidationError is raised with the appropriate error message
+    """
+    bad_config = deepcopy(good_config_dict)
+    bad_config["jira"]["token_auth"] = ""
+    with pytest.raises(ValidationError) as excinfo:
+        Config.from_config(config_dict=bad_config)
+
+    assert len(excinfo.value.errors()) == 1
+    error = excinfo.value.errors()[0]
+    assert error.get("ctx").get("limit_value") == 1
+    assert error.get("loc") == ("config_dict", "jira", "token_auth")
+
+
+def test_config_empty_values(config_defaults):
+    """
+    GIVEN a json file containing a a Bugjira config with all empty strings for
+        values
     WHEN we call Config.from_config with the path to the file
-    THEN a ValidationError is raised
+    THEN a ValidationError is raised showing all the values were missing
     """
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as excinfo:
         Config.from_config(
             config_path=(config_defaults + "/data/config/missing_config.json")
         )
+    for error in excinfo.value.errors():
+        assert error.get("type") == "value_error.any_str.min_length"
+        assert error.get("ctx").get("limit_value") == 1
 
 
 def test_config_no_file(config_defaults):
