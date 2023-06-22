@@ -1,6 +1,30 @@
 import json
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, constr
+
+
+class BugzillaConfig(BaseModel):
+    URL: constr(strip_whitespace=True, min_length=1)
+    api_key: constr(strip_whitespace=True, min_length=1)
+
+    class Config:
+        extra = 'forbid'
+
+
+class JiraConfig(BaseModel):
+    URL: constr(strip_whitespace=True, min_length=1)
+    token_auth: constr(strip_whitespace=True, min_length=1)
+
+    class Config:
+        extra = 'forbid'
+
+
+class ConfigDict(BaseModel):
+    bugzilla: BugzillaConfig
+    jira: JiraConfig
+
+    class Config:
+        extra = 'forbid'
 
 
 class Config(BaseModel):
@@ -10,12 +34,7 @@ class Config(BaseModel):
 
     @validator("config_dict")
     def validate_minimum_config(cls, v):
-        assert v.get("bugzilla")
-        assert v.get("bugzilla").get("URL")
-        assert v.get("bugzilla").get("api_key")
-        assert v.get("jira")
-        assert v.get("jira").get("URL")
-        assert v.get("jira").get("token_auth")
+        ConfigDict(**v)
         return v
 
     @staticmethod
