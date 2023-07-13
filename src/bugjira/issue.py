@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 from bugjira.util import is_bugzilla_key, is_jira_key
 
@@ -12,12 +12,12 @@ class Issue(BaseModel):
     """
 
     key: str
-    bugzilla: Any
-    jira_issue: Any
+    bugzilla: Any = None
+    jira_issue: Any = None
 
 
 class BugzillaIssue(Issue):
-    @validator("key")
+    @field_validator("key")
     def validate_key(cls, key):
         if not is_bugzilla_key(key):
             raise ValueError(f"{key} is not a \
@@ -26,7 +26,7 @@ class BugzillaIssue(Issue):
 
 
 class JiraIssue(Issue):
-    @validator("key")
+    @field_validator("key")
     def validate_key(cls, key):
         if not is_jira_key(key):
             raise ValueError(f"{key} is not a \
