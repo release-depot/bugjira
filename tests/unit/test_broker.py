@@ -3,7 +3,7 @@ from unittest.mock import Mock, create_autospec
 import pytest
 from bugzilla import Bugzilla
 from jira import JIRA
-from pydantic.error_wrappers import ValidationError
+from pydantic import ValidationError
 
 import bugjira.broker as broker
 from bugjira.broker import (
