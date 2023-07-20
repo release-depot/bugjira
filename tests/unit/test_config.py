@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 import pytest
-from pydantic.error_wrappers import ValidationError
+from pydantic import ValidationError
 
 from bugjira.config import Config
 
