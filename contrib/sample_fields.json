@@ -1,0 +1,11 @@
+{
+    "bugzilla_field_data": [
+        {"name": "product"},
+        {"name": "component"},
+        {"name": "status"}
+    ],
+    "jira_field_data": [
+        {"name": "Issue Type", "jira_field_id": "issuetype"},
+        {"name": "Assignee", "jira_field_id": "assignee"}
+    ]
+}

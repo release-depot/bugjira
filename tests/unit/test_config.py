@@ -103,6 +103,19 @@ def test_config_missing_value(good_config_dict):
     assert error.get("type") == "missing"
 
 
+def test_config_missing_optional_fields(good_config_dict):
+    """
+    GIVEN a dict containing a Bugjira config with missing optional elements
+    WHEN we call Config.from_config using the dict as the config_dict
+    THEN no ValidationError is raised and the result matches the input config
+    """
+    modified_config = deepcopy(good_config_dict)
+    modified_config.pop("field_data_path")
+    config = Config.from_config(config_dict=modified_config)
+    assert isinstance(config, dict)
+    assert config == modified_config
+
+
 def test_config_empty_value(good_config_dict):
     """
     GIVEN a dict containing a Bugjira config with one empty string value

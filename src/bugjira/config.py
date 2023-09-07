@@ -22,6 +22,8 @@ class BugjiraConfigDict(BaseModel):
 
     bugzilla: BugzillaConfig
     jira: JiraConfig
+    json_generator_module: constr(strip_whitespace=True, min_length=1)
+    field_data_path: str = None
 
 
 class Config(BaseModel):
@@ -36,7 +38,7 @@ class Config(BaseModel):
 
     @staticmethod
     def from_config(config_path=None, config_dict=None):
-        """Returns a Config instance based on either a json file specified by
+        """Returns a config dict based on either a json file specified by
         the config_path parameter or a dict specified by the config_dict
         parameter. If both a path and a dict are provided, use the dict to
         generate the config.

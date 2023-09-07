@@ -6,5 +6,7 @@
     "jira": {
         "URL": "https://issues.redhat.com",
         "token_auth": "your_personal_auth_token_here"
-    }
+    },
+    "json_generator_module": "bugjira.json_generator",
+    "field_data_path": "/path/to/contrib/sample_fields.json"
 }
