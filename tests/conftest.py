@@ -19,6 +19,11 @@ def good_config_dict(good_config_file_path):
     return Config.from_config(config_path=good_config_file_path)
 
 
+@pytest.fixture()
+def good_sample_fields_file_path(config_defaults):
+    return config_defaults + "/data/sample_fields/sample_fields.json"
+
+
 @pytest.fixture
 def good_bz_keys():
     return ["123456", "1"]

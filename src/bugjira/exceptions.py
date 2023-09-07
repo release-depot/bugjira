@@ -12,3 +12,11 @@ class BrokerAddCommentException(BrokerException):
 
 class BrokerLookupException(BrokerException):
     pass
+
+
+class JsonGeneratorException(Exception):
+    pass
+
+
+class PluginLoaderException(Exception):
+    pass

@@ -3,5 +3,6 @@
     "api_key": ""},
  "jira": {
     "URL": "",
-    "token_auth": ""}
- }
+    "token_auth": ""},
+ "json_generator_module": ""
+}
