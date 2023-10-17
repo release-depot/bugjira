@@ -5,18 +5,26 @@ Bugjira is an abstraction layer library for interacting with either bugzilla or 
 
 Bugjira users can perform common operations (lookup, query, modify, etc) on both bugs (bugzilla) and issues (jira) using the Bugjira object.
 
-Configuration is provided with either a dict (see below) or a pathname to a config file containing a json dict (a sample config file is included in `contrib/bugjira.json`):
+Configuration is provided with either a dict (see below) or a pathname to a bugjira config file containing a json dict (a sample config file is included in `contrib/bugjira.json`).
+
+At a minimum, you will need to set the "field_data_path" config entry to point to a file containing valid field configuration information. See the [Field Configuration](#field-configuration) section below for more details. Once you have done that, you can create a bugjira instance like so:
 
 ```python
 from bugjira.bugjira import Bugjira
 config = {
     "bugzilla": {
-        "URL": "https://bugzilla.yourdomain.com",
-        "api_key": "your_bugzilla_api_key"},
+        "URL": "https://bugzilla.redhat.com",
+        "api_key": "your_api_key_here",
+        "field_data_plugin_name": "default_bugzilla_field_data_plugin"
+    },
     "jira": {
-        "URL": "https://jira.yourdomain.com",
-        "token_auth": "your_jira_personal_access_token"}
- }
+        "URL": "https://issues.redhat.com",
+        "token_auth": "your_personal_auth_token_here",
+        "field_data_plugin_name": "default_jira_field_data_plugin"
+    },
+    "field_data_path": "/path/to/contrib/sample_fields.json"
+}
+
 
 bugjira_api = Bugjira(config_dict=config)
 ```
@@ -55,8 +63,8 @@ Users of the Bugjira library will be able to read and write field contents from 
 
 Bugzilla's issue (bug) attributes are relatively static, and they are named and accessed in a straightforward way. JIRA's issue attributes, in contrast, consist of a pre-defined set of attributes (e.g. "issuetype", "status", "assignee") and an arbitrarily large set of custom fields (with identifiers like "customfield_12345678"). Furthermore, the JIRA api requires multiple requests to obtain the necessary metadata to use custom fields.
 
-Since both Bugzilla and JIRA allow field customization, and since it is cumbersome to obtain JIRA custom field metadata dynamically, the Bugjira library will rely on user-supplied configuration information to determine what fields are supported by the user's JIRA and Bugzilla instances. The data Bugjira requires to define fields is specified by the `BugzillaField` and `JiraField` classes in the `bugjira.field` module. Internally, Bugjira uses the `bugjira.field_factory` module as its source of field information.
+Since both Bugzilla and JIRA allow field customization, and since it is cumbersome to obtain JIRA custom field metadata dynamically, the Bugjira library will rely on user-supplied configuration information to determine what fields are supported by the user's JIRA and Bugzilla instances. The data Bugjira requires to define fields is specified by the `BugzillaField` and `JiraField` classes in the `bugjira.field` module.
 
-The `field_factory` module generates `BugzillaField` and `JiraField` objects using json retrieved from a plugin module loaded at runtime. The default plugin is defined by the included `bugjira.json_generator` module, which is specified in the config dict under the "json_generator_module" key. This module defines a class called `JsonGenerator` whose `get_bugzilla_field_json` and `get_jira_field_json` instance methods return json field information. The `bugjira.field_factory` module consumes that json to create lists of `BugzillaField` and `JiraField` objects.
+Bugjira obtains its field configuration data from plugins which it loads using [stevedore](https://docs.openstack.org/stevedore/latest/). The plugins are defined in the stevedore `bugjira.field_data.plugins` namespace. The names of the plugins provided with the bugjira source code are referenced in the provided `config/bugjira.json` sample config under the `bugzilla.field_data_plugin_name` and `jira.field_data_plugin_name` attributes. To replace one of the default provided plugins, your plugin should implement the `bugjira.field_data_generator.FieldDataGeneratorInterface` interface and "advertise" itself in the `bugjira.field_data.plugins` namespace, and you should edit bugjira's sample config to indicate the names of the replacement plugins.
 
-The `bugjira.json_generator.JsonGenerator` class loads its json data from a file whose path is (optionally) specified in the config dict under the "field_data_file_path" key. A sample file is provided in `contrib/sample_fields.json`. The field information in this file is not intended to be comprehensive; if you use the default `bugjira.json_generator` plugin, we encourage you to edit the sample fields file to support your JIRA instance and intended use cases.
+The default field data generation plugin class loads data from a file whose path is specified in the config dict under the "field_data_path" key. A sample file is provided in `contrib/sample_fields.json`. The field information in this file is not intended to be comprehensive; if you use the default field data generation plugin, you should edit the sample fields file to support your JIRA and Bugzilla instances and your intended use cases.

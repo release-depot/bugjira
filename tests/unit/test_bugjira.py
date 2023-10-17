@@ -1,5 +1,5 @@
 from copy import deepcopy
-from unittest.mock import Mock, create_autospec, patch
+from unittest.mock import Mock, create_autospec
 from xmlrpc.client import Fault
 
 import pytest
@@ -8,9 +8,8 @@ from jira import JIRA
 from jira.exceptions import JIRAError
 
 import bugjira.broker as broker
-import bugjira.bugjira as bugjira
 from bugjira.exceptions import (
-    BrokerLookupException, BrokerAddCommentException, JsonGeneratorException
+    BrokerLookupException, BrokerAddCommentException
 )
 from bugjira.bugjira import Bugjira
 from bugjira.issue import Issue, BugzillaIssue, JiraIssue
@@ -25,7 +24,6 @@ def setup(monkeypatch):
     """
     monkeypatch.setattr(broker, "Bugzilla", create_autospec(Bugzilla))
     monkeypatch.setattr(broker, "JIRA", create_autospec(JIRA))
-    monkeypatch.setattr(bugjira, "plugin_loader", Mock())
 
 
 @pytest.fixture(scope="function")
@@ -83,48 +81,6 @@ def test_init_with_both_path_and_dict(good_config_file_path, good_config_dict):
     )
     assert bugjira.config != good_config_dict
     assert bugjira.config == edited_dict
-
-
-def test_init_plugin_loader_called(good_config_file_path):
-    """
-    GIVEN the Bugjira class' constructor
-    WHEN we call it with a good config path
-    THEN the plugin_loader.load_plugin method should be called once
-    """
-    with patch("bugjira.bugjira.plugin_loader") as plugin_loader:
-        Bugjira(config_path=good_config_file_path)
-        assert plugin_loader.load_plugin.call_count == 1
-
-
-def test_init_plugin_loader_io_error(good_config_dict):
-    """
-    GIVEN the Bugjira class' constructor
-    WHEN we call it with a valid config dict
-    AND the plugin_loader.load_plugin method raises an IOError
-    THEN a BrokerInitException should be raised
-    AND the error message should reflect that an IOError was handled
-    """
-
-    with patch("bugjira.bugjira.plugin_loader.load_plugin",
-               side_effect=IOError):
-        with pytest.raises(broker.BrokerInitException,
-                           match="An IOError was raised"):
-            Bugjira(config_dict=good_config_dict)
-
-
-def test_init_plugin_loader_json_generator_error(good_config_dict):
-    """
-    GIVEN the Bugjira class' constructor
-    WHEN we call it with a valid config dict
-    AND the plugin_loader.load_plugin method raises a JsonGeneratorException
-    THEN a BrokerInitException should be raised
-    AND the error message should reflect that the generator had a problem
-    """
-    with patch("bugjira.bugjira.plugin_loader.load_plugin",
-               side_effect=JsonGeneratorException):
-        with pytest.raises(broker.BrokerInitException,
-                           match="json generator encountered a problem"):
-            Bugjira(config_dict=good_config_dict)
 
 
 def test_init_with_no_parameters():

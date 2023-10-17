@@ -1,9 +1,13 @@
-{"bugzilla": {
-    "URL": "https://bugzilla.yourdomain.com",
-    "api_key": "your_bugzilla_api_key"},
- "jira": {
-    "URL": "https://jira.yourdomain.com",
-    "token_auth": "your_jira_personal_access_token"},
- "json_generator_module": "bugjira.json_generator",
- "field_data_path": "/path/to/contrib/sample_fields.json"
+{
+   "bugzilla": {
+       "URL": "https://bugzilla.redhat.com",
+       "api_key": "your_api_key_here",
+       "field_data_plugin_name": "default_bugzilla_field_data_plugin"
+   },
+   "jira": {
+       "URL": "https://issues.redhat.com",
+       "token_auth": "your_personal_auth_token_here",
+       "field_data_plugin_name": "default_jira_field_data_plugin"
+   },
+   "field_data_path": "/path/to/contrib/sample_fields.json"
 }

@@ -8,6 +8,7 @@ class BugzillaConfig(BaseModel):
 
     URL: constr(strip_whitespace=True, min_length=1)
     api_key: constr(strip_whitespace=True, min_length=1)
+    field_data_plugin_name: constr(strip_whitespace=True, min_length=1)
 
 
 class JiraConfig(BaseModel):
@@ -15,6 +16,7 @@ class JiraConfig(BaseModel):
 
     URL: constr(strip_whitespace=True, min_length=1)
     token_auth: constr(strip_whitespace=True, min_length=1)
+    field_data_plugin_name: constr(strip_whitespace=True, min_length=1)
 
 
 class BugjiraConfigDict(BaseModel):
@@ -22,7 +24,8 @@ class BugjiraConfigDict(BaseModel):
 
     bugzilla: BugzillaConfig
     jira: JiraConfig
-    json_generator_module: constr(strip_whitespace=True, min_length=1)
+    # The field_data_path attribute is optional since it is only used by
+    # the default field data generator plugin.
     field_data_path: str = None
 
 
