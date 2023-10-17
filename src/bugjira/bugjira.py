@@ -1,7 +1,5 @@
-from bugjira import plugin_loader
 from bugjira.broker import BugzillaBroker, JiraBroker
 from bugjira.config import Config
-from bugjira.exceptions import BrokerInitException, JsonGeneratorException
 from bugjira.issue import Issue
 from bugjira.util import is_bugzilla_key, is_jira_key
 
@@ -34,19 +32,6 @@ class Bugjira:
             self.config = Config.from_config(config_dict=config_dict)
         elif config_path:
             self.config = Config.from_config(config_path=config_path)
-
-        try:
-            plugin_loader.load_plugin(self.config)
-        except IOError as io_error:
-            raise BrokerInitException(
-                "An IOError was raised when loading the field data "
-                "generator plugin."
-            ) from io_error
-        except JsonGeneratorException as generator_error:
-            raise BrokerInitException(
-                "The field data json generator encountered a problem. Please "
-                "check the field data source."
-            ) from generator_error
 
         self._bugzilla_broker = BugzillaBroker(
             config=self.config, backend=bugzilla

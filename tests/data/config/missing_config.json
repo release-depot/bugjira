@@ -1,8 +1,10 @@
 {"bugzilla": {
     "URL": "",
-    "api_key": ""},
+    "api_key": "",
+    "field_data_plugin_name": ""},
  "jira": {
     "URL": "",
-    "token_auth": ""},
- "json_generator_module": ""
+    "token_auth": "",
+    "field_data_plugin_name": ""},
+ "field_data_path": ""
 }

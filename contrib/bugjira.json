@@ -1,12 +1,13 @@
 {
     "bugzilla": {
         "URL": "https://bugzilla.redhat.com",
-        "api_key": "your_api_key_here"
+        "api_key": "your_api_key_here",
+        "field_data_plugin_name": "default_bugzilla_field_data_plugin"
     },
     "jira": {
         "URL": "https://issues.redhat.com",
-        "token_auth": "your_personal_auth_token_here"
+        "token_auth": "your_personal_auth_token_here",
+        "field_data_plugin_name": "default_jira_field_data_plugin"
     },
-    "json_generator_module": "bugjira.json_generator",
     "field_data_path": "/path/to/contrib/sample_fields.json"
 }

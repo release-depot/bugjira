@@ -14,7 +14,7 @@ class BrokerLookupException(BrokerException):
     pass
 
 
-class JsonGeneratorException(Exception):
+class FieldDataGeneratorException(Exception):
     pass
 
 
